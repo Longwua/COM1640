@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ideas</title>
+    <link rel="stylesheet" href="styles.css">
+
+<div class="navbar">All Ideas</div>
+
+<div class="container">
+    <button class="button" onclick="go('dashboard.html')" style="background:#6b7280;">⬅ Back</button>
+    <div id="ideas"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+// ✅ PAGE GUARD
+const email = localStorage.getItem("email");
+if (!email) {
+    alert("Please login first!");
+    window.location.href = "login.html";
+}
+
+function go(p){ window.location.href = p; }
+
+
+// ✅ LOAD IDEAS (CHECK FULLY SAFE)
+async function loadIdeas() {
+    try {
+        const res = await fetch(API + "/ideas");
+        const data = await res.json();
+
+        const container = document.getElementById("ideas");
+        container.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+            container.innerHTML = "<p>No ideas found.</p>";
+            return;
+        }
+
+        data.forEach(i => {
+            container.innerHTML += `
+                <div class="card">
+                    <h3>${i.title}</h3>
+                    <p>${i.content}</p>
+                    <p><b>Category:</b> ${i.category}</p>
+                    <p><b>Topic:</b> ${i.topic}</p>
+
+                    <button class="button" onclick="view(${i.id})">View</button>
+
+                    <button class="button" onclick="react(${i.id}, 'like')" style="background:#34d399;">
+                        👍 Like (${i.likes ?? 0})
+                    </button>
+
+                    <button class="button" onclick="react(${i.id}, 'dislike')" style="background:#f87171;">
+                        👎 Dislike (${i.dislikes ?? 0})
+                    </button>
+                </div>
+            `;
+        });
+
+    } catch (err) {
+        console.error("LOAD IDEAS ERROR:", err);
+        alert("Cannot load ideas. Check backend.");
+    }
+}
+
+
+// ✅ VIEW IDEA
+function view(id){
+    window.location.href = "idea.html?id=" + id;
+}
+
+
+// ✅ REACT (LIKE/DISLIKE)
+function react(id, type) {
+    fetch(API + "/ideas/react", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({
+            id,
+            type,
+            email: localStorage.getItem("email")
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        console.log("Reaction:", res);
+        loadIdeas();
+    })
+    .catch(err => console.error("React error", err));
+}
+
+loadIdeas(); // ✅ start
+</script>
+
+</body>
+</html>

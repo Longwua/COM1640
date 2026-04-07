@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    Dashboard
+</div>
+
+<div class="container">
+
+    <!-- MAIN CARD -->
+    <div class="card">
+        <h2>Dashboard</h2>
+
+        <p>Welcome: <b id="emailBox"></b></p>
+        <p>Your role: <b id="roleBox"></b></p>
+
+        <br>
+
+        <!-- NAVIGATION BUTTONS -->
+        <button class="button" onclick="go('index.html')">Submit Idea</button>
+        <button class="button" onclick="go('ideas.html')">View Ideas</button>
+
+        <!-- ADMIN BUTTON (ẩn nếu không phải admin) -->
+        <button id="adminBtn" class="button" onclick="go('admin.html')" style="background:#10b981;">
+            Admin Panel
+        </button>
+
+        <br><br>
+        <button class="button" onclick="logout()" style="background:red;">Logout</button>
+    </div>
+
+</div>
+
+<script>
+// ----------------- PAGE GUARD --------------------
+const email = localStorage.getItem("email");
+const role  = localStorage.getItem("role");
+
+// Nếu chưa login → quay về login
+if (!email) {
+    alert("Please login first!");
+    window.location.href = "login.html";
+}
+
+// Hiển thị thông tin người dùng
+document.getElementById("emailBox").innerText = email;
+document.getElementById("roleBox").innerText  = role;
+
+// Phân quyền: nếu không phải admin → ẩn nút Admin Panel
+if (role !== "admin") {
+    document.getElementById("adminBtn").style.display = "none";
+}
+
+// ----------------- FUNCTIONS --------------------
+function go(page) {
+    window.location.href = page;
+}
+
+function logout() {
+    localStorage.clear();
+    alert("Logged out!");
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

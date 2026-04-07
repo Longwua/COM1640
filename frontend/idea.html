@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Idea Detail</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="navbar">Idea Detail</div>
+
+<div class="container">
+
+    <button class="button" onclick="go('ideas.html')" style="background:#6b7280;">⬅ Back</button>
+
+    <!-- IDEA DETAILS -->
+    <div class="card" id="detailBox"></div>
+
+    <!-- COMMENT INPUT -->
+    <div class="card">
+        <h3>Add Comment</h3>
+        <textarea id="commentInput" class="input" placeholder="Your comment..."></textarea>
+        <button class="button" onclick="submitComment()">Submit Comment</button>
+    </div>
+
+</div>
+
+
+<script>
+const API = "http://localhost:3000";
+
+const email = localStorage.getItem("email");
+if (!email) {
+    alert("Please login first!");
+    window.location.href = "login.html";
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const ideaId = urlParams.get("id");
+
+
+// ✅ Load idea details + comments
+async function loadIdea() {
+    try {
+        const res = await fetch(API + "/ideas");
+        const ideas = await res.json();
+
+        const idea = ideas.find(i => i.id == ideaId);
+        if (!idea) {
+            document.getElementById("detailBox").innerHTML = "<p>Idea not found.</p>";
+            return;
+        }
+
+        // ✅ Render comments section
+        let commentHTML = "";
+        idea.comments.forEach(c => {
+            commentHTML += `
+                <div class="idea">
+                    <p>• ${c.text}</p>
+
+                    <button class="button" 
+                        style="background:#34d399;"
+                        onclick="reactComment(${c.id}, 'like')">
+                        👍 (${c.likes ?? 0})
+                    </button>
+
+                    <button class="button" 
+                        style="background:#f87171;"
+                        onclick="reactComment(${c.id}, 'dislike')">
+                        👎 (${c.dislikes ?? 0})
+                    </button>
+                </div>
+            `;
+        });
+
+        // ✅ Render idea
+        document.getElementById("detailBox").innerHTML = `
+            <h2>${idea.title}</h2>
+            <p>${idea.content}</p>
+            <p><b>Category:</b> ${idea.category}</p>
+            <p><b>Topic:</b> ${idea.topic}</p>
+
+            <h3>Comments</h3>
+            <div>${commentHTML || "<i>No comments yet</i>"}</div>
+        `;
+
+    } catch (err) {
+        console.error("LOAD IDEA ERROR:", err);
+        document.getElementById("detailBox").innerHTML = `
+            <p style="color:red;">Cannot load idea. Check backend.</p>
+        `;
+    }
+}
+
+
+// ✅ Submit new comment
+function submitComment() {
+    let comment = document.getElementById("commentInput").value.trim();
+
+    if (!comment) {
+        alert("Please enter a comment!");
+        return;
+    }
+
+    fetch(API + "/ideas/comment", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ id: ideaId, comment })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.error) {
+            alert("❌ " + res.error);
+        } else {
+            alert("✅ Comment added!");
+            document.getElementById("commentInput").value = "";
+            loadIdea();
+        }
+    })
+    .catch(err => console.error("COMMENT ERROR:", err));
+}
+
+
+// ✅ React to comment (like/dislike)
+function reactComment(commentId, type) {
+    fetch(API + "/comments/react", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({
+            commentId,
+            type,
+            email: localStorage.getItem("email")
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        console.log("Comment reaction:", res);
+        loadIdea();
+    })
+    .catch(err => console.error("COMMENT REACT ERROR:", err));
+}
+
+
+function go(page){ window.location.href = page; }
+
+loadIdea();   // ✅ Initial load
+</script>
+
+</body>
+</html>

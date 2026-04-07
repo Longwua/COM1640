@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Idea</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="navbar">Submit New Idea</div>
+
+<div class="container">
+
+    <button class="button" onclick="go('dashboard.html')" style="background:#6b7280;">⬅ Back</button>
+
+    <div class="card">
+        <h2>Submit New Idea</h2>
+
+        <input id="title" class="input" placeholder="Idea Title">
+
+        <textarea id="content" class="input" placeholder="Idea Content"></textarea>
+
+        <label><b>Category:</b></label>
+        <select id="category" class="input"></select>
+
+        <label><b>Topic:</b></label>
+        <select id="topic" class="input"></select>
+
+        <button class="button" onclick="submitIdea()">Submit</button>
+    </div>
+
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+// ✅ PAGE PROTECTION
+const email = localStorage.getItem("email");
+if (!email) {
+    alert("Please login first!");
+    window.location.href = "login.html";
+}
+
+function go(p){ window.location.href = p; }
+
+
+// ✅ LOAD DROPDOWNS (category + topic)
+async function loadDropdowns() {
+    const catRes = await fetch(API + "/categories");
+    const topicRes = await fetch(API + "/topics");
+
+    let categories = await catRes.json();
+    let topics = await topicRes.json();
+
+    // ✅ FIX: Category is an array of objects → use name
+    document.getElementById("category").innerHTML =
+        categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("");
+
+    // ✅ FIX: Topic is an array of objects → use name
+    document.getElementById("topic").innerHTML =
+        topics.map(t => `<option value="${t.name}">${t.name}</option>`).join("");
+}
+
+
+// ✅ SUBMIT IDEA (Compatible with SQLite backend)
+function submitIdea() {
+    let data = {
+        title: document.getElementById("title").value,
+        content: document.getElementById("content").value,
+        category: document.getElementById("category").value,
+        topic: document.getElementById("topic").value,
+    };
+
+    if (!data.title || !data.content) {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    fetch(API + "/ideas", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.error) {
+            alert("❌ " + res.error);
+        } else {
+            alert("✅ Idea submitted successfully!");
+            document.getElementById("title").value = "";
+            document.getElementById("content").value = "";
+        }
+    });
+}
+
+loadDropdowns();
+</script>
+
+</body>
+</html>

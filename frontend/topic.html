@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Topics</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="navbar">Manage Topics</div>
+
+<div class="container">
+
+    <button class="button" onclick="go('admin.html')" style="background:#6b7280;">⬅ Back</button>
+
+    <div class="card">
+        <h2>Create New Topic</h2>
+
+        <input id="topicName" class="input" placeholder="Topic name">
+
+        <label>Closure date:</label>
+        <input id="closure" class="input" type="date">
+
+        <label>Final closure date:</label>
+        <input id="finalClosure" class="input" type="date">
+
+        <button class="button" onclick="addTopic()">Add Topic</button>
+    </div>
+
+    <div class="card">
+        <h2>Existing Topics</h2>
+        <div id="topicList"></div>
+    </div>
+
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+const email = localStorage.getItem("email");
+const role  = localStorage.getItem("role");
+
+if (!email) { alert("Please login first!"); window.location.href = "login.html"; }
+if (role !== "admin") {
+    alert("❌ Access denied: admin only!");
+    window.location.href = "dashboard.html";
+}
+
+function go(page){ window.location.href = page; }
+
+
+// ✅ Load topics
+function loadTopics() {
+    fetch(API + "/topics")
+        .then(res => res.json())
+        .then(data => {
+            let html = "";
+            data.forEach(t => {
+                html += `
+                    <div class="idea">
+                        <h3>${t.name}</h3>
+                        <p>Closure: ${t.closure}</p>
+                        <p>Final Closure: ${t.finalClosure}</p>
+
+                        <button class="button" style="background:red;"
+                            onclick="deleteTopic(${t.id})">
+                            Delete
+                        </button>
+                    </div>
+                `;
+            });
+            document.getElementById("topicList").innerHTML = html;
+        });
+}
+
+
+// ✅ Add new topic
+function addTopic() {
+    let name = document.getElementById("topicName").value;
+    let closure = document.getElementById("closure").value;
+    let finalClosure = document.getElementById("finalClosure").value;
+
+    if (!name || !closure || !finalClosure) return alert("Missing fields!");
+
+    if (new Date(finalClosure) < new Date(closure))
+        return alert("Final closure must be AFTER the closure date");
+
+    fetch(API + "/topics", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ name, closure, finalClosure })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.error) return alert(res.error);
+        alert("✅ Topic added!");
+        loadTopics();
+    });
+}
+
+
+// ✅ Delete topic by ID
+function deleteTopic(id) {
+    fetch(API + "/topics/delete", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ id })
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert("✅ Topic deleted!");
+        loadTopics();
+    });
+}
+
+loadTopics();
+</script>
+
+</body>
+</html>

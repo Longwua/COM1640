@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="navbar">Idea System - Login</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Login</h2>
+
+        <input id="email" class="input" placeholder="Email">
+        <input id="password" class="input" type="password" placeholder="Password">
+
+        <button class="button" onclick="login()">Login</button>
+    </div>
+</div>
+
+<script>
+function login() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    if (!email || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.error) {
+            alert("❌ " + res.error);
+        } else {
+            // ✅ LƯU LOGIN SAU KHI ĐĂNG NHẬP
+            localStorage.setItem("email", res.user.email);
+            localStorage.setItem("role",  res.user.role);
+
+            alert("✅ Login successful!");
+            window.location.href = "dashboard.html";
+        }
+    })
+    .catch(err => {
+        alert("Server connection failed");
+        console.log(err);
+    });
+}
+</script>
+
+</body>
+</html>

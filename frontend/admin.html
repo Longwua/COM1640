@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">Admin Panel</div>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Admin Dashboard</h2>
+
+        <p>Welcome: <b id="emailBox"></b></p>
+        <p>Your role: <b id="roleBox"></b></p>
+
+        <br>
+
+        <!-- MENU -->
+        <button class="button" onclick="go('category.html')">Manage Categories</button>
+        <button class="button" onclick="go('topic.html')">Manage Topics</button>
+        <button class="button" onclick="go('statistics.html')">Statistics</button>
+        <button class="button" onclick="go('ideas.html')">All Ideas</button>
+
+        <br><br>
+        <button class="button" onclick="go('dashboard.html')" style="background:#6b7280;">Back</button>
+        <button class="button" onclick="logout()" style="background:red;">Logout</button>
+    </div>
+
+</div>
+
+<script>
+// ----------------- PAGE GUARD --------------------
+const email = localStorage.getItem("email");
+const role  = localStorage.getItem("role");
+
+if (!email) {
+    alert("Please login first!");
+    window.location.href = "login.html";
+}
+
+// ✅ CHỈ ADMIN ĐƯỢC VÀO TRANG NÀY
+if (role !== "admin") {
+    alert("❌ Access denied: Only admin can access this page!");
+    window.location.href = "dashboard.html";
+}
+
+document.getElementById("emailBox").innerText = email;
+document.getElementById("roleBox").innerText  = role;
+
+function go(p){
+    window.location.href = p;
+}
+
+function logout(){
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

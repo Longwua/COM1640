@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistics</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="navbar">System Statistics</div>
+
+<div class="container">
+
+    <button class="button" onclick="go('admin.html')" style="background:#6b7280;">⬅ Back</button>
+
+    <div class="card">
+        <h2>Overview</h2>
+
+        <!-- ✅ Đổi tên như bạn yêu cầu -->
+        <p><b>Total Likes (Ideas):</b> <span id="likeIdeas"></span></p>
+        <p><b>Total Dislikes (Ideas):</b> <span id="dislikeIdeas"></span></p>
+
+        <!-- ✅ Thêm thống kê Comment -->
+        <p><b>Total Likes (Comments):</b> <span id="likeComments"></span></p>
+        <p><b>Total Dislikes (Comments):</b> <span id="dislikeComments"></span></p>
+
+        <p><b>Total Comments:</b> <span id="totalComments"></span></p>
+        <p><b>Total Ideas:</b> <span id="totalIdeas"></span></p>
+    </div>
+
+    <div class="card">
+        <h2>Ideas by Category</h2>
+        <div id="categoryStats"></div>
+    </div>
+
+    <div class="card">
+        <h2>Ideas by Topic</h2>
+        <div id="topicStats"></div>
+    </div>
+
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+const role = localStorage.getItem("role");
+if (role !== "admin") {
+    alert("Access denied!");
+    window.location.href = "dashboard.html";
+}
+
+function go(p){ window.location.href = p; }
+
+async function loadStats() {
+    const ideas = await fetch(API + "/ideas").then(r => r.json());
+
+    // ====== ✅ Tính tổng Like/Dislike Ideas ======
+    let likeIdeas = 0;
+    let dislikeIdeas = 0;
+    let totalComments = 0;
+
+    ideas.forEach(i => {
+        likeIdeas += i.likes;
+        dislikeIdeas += i.dislikes;
+        totalComments += i.comments.length;
+    });
+
+    document.getElementById("likeIdeas").innerText = likeIdeas;
+    document.getElementById("dislikeIdeas").innerText = dislikeIdeas;
+    document.getElementById("totalIdeas").innerText = ideas.length;
+    document.getElementById("totalComments").innerText = totalComments;
+
+    // ====== ✅ Tính tổng Like/Dislike Comments ======
+    let likeComments = 0;
+    let dislikeComments = 0;
+
+    ideas.forEach(i => {
+        i.comments.forEach(c => {
+            likeComments += c.likes ?? 0;
+            dislikeComments += c.dislikes ?? 0;
+        });
+    });
+
+    document.getElementById("likeComments").innerText = likeComments;
+    document.getElementById("dislikeComments").innerText = dislikeComments;
+
+    // ====== ✅ Stats theo Category ======
+    let catCount = {};
+    ideas.forEach(i => {
+        catCount[i.category] = (catCount[i.category] || 0) + 1;
+    });
+
+    let catHtml = "";
+    for (let c in catCount) {
+        catHtml += `<p><b>${c}</b>: ${catCount[c]} ideas</p>`;
+    }
+    document.getElementById("categoryStats").innerHTML = catHtml;
+
+    // ====== ✅ Stats theo Topic ======
+    let topicCount = {};
+    ideas.forEach(i => {
+        topicCount[i.topic] = (topicCount[i.topic] || 0) + 1;
+    });
+
+    let topicHtml = "";
+    for (let t in topicCount) {
+        topicHtml += `<p><b>${t}</b>: ${topicCount[t]} ideas</p>`;
+    }
+    document.getElementById("topicStats").innerHTML = topicHtml;
+}
+
+loadStats();
+</script>
+
+</body>
+</html>
