@@ -7,16 +7,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// =======================================
-// ✅ INIT DATABASE (Load schema.sql 1 lần duy nhất khi DB chưa tồn tại)
-// =======================================
 const schema = fs.readFileSync("./sql/schema.sql", "utf8");
 db.exec(schema, () => console.log("✅ Database initialized"));
 
-
-// =======================================
-// ✅ LOGIN
-// =======================================
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
 
@@ -29,10 +22,6 @@ app.post("/login", (req, res) => {
     });
 });
 
-
-// =======================================
-// ✅ CATEGORY CRUD
-// =======================================
 app.get("/categories", (req, res) => {
     db.all(`SELECT * FROM categories`, [], (err, rows) => res.json(rows));
 });
@@ -55,10 +44,6 @@ app.post("/categories/delete", (req, res) => {
     });
 });
 
-
-// =======================================
-// ✅ TOPICS CRUD
-// =======================================
 app.get("/topics", (req, res) => {
     db.all(`SELECT * FROM topics`, [], (err, rows) => res.json(rows));
 });
@@ -82,10 +67,6 @@ app.post("/topics/delete", (req, res) => {
     });
 });
 
-
-// =======================================
-// ✅ GET IDEAS (JOIN category + topic + comments + comment likes/dislikes)
-// =======================================
 app.get("/ideas", (req, res) => {
     db.all(`
         SELECT ideas.*,
@@ -102,7 +83,6 @@ app.get("/ideas", (req, res) => {
         let count = 0;
 
         ideas.forEach((idea, index) => {
-            // ✅ Load comments for each idea
             db.all(`
                 SELECT * FROM comments WHERE ideaId=?
             `, [idea.id], (err2, comments) => {
@@ -118,10 +98,6 @@ app.get("/ideas", (req, res) => {
     });
 });
 
-
-// =======================================
-// ✅ SUBMIT IDEA (Check closure date)
-// =======================================
 app.post("/ideas", (req, res) => {
     const { title, content, category, topic } = req.body;
 
@@ -151,10 +127,6 @@ app.post("/ideas", (req, res) => {
     })});
 });
 
-
-// =======================================
-// ✅ LIKE / DISLIKE IDEA
-// =======================================
 app.post("/ideas/react", (req, res) => {
     const { id, type, email } = req.body; // type = 'like' | 'dislike'
 
@@ -163,7 +135,6 @@ app.post("/ideas/react", (req, res) => {
         [email, id],
         (err, row) => {
 
-        // ✅ CASE 1: Chưa phản ứng → thêm mới
         if (!row) {
             db.run(`
                 INSERT INTO reactions(userEmail, ideaId, reaction)
@@ -177,7 +148,6 @@ app.post("/ideas/react", (req, res) => {
             return res.json({ status: "added", reaction: type });
         }
 
-        // ✅ CASE 2: Đang like/dislike → ấn lại để bỏ
         if (row.reaction === type) {
             db.run(`DELETE FROM reactions WHERE id=?`, [row.id]);
 
@@ -188,7 +158,6 @@ app.post("/ideas/react", (req, res) => {
             return res.json({ status: "removed", reaction: "none" });
         }
 
-        // ✅ CASE 3: Đổi từ like → dislike hoặc ngược lại
         const opposite = row.reaction;
 
         db.run(`UPDATE reactions SET reaction=? WHERE id=?`, [type, row.id]);
@@ -205,9 +174,6 @@ app.post("/ideas/react", (req, res) => {
 });
 
 
-// =======================================
-// ✅ COMMENT (Check final closure)
-// =======================================
 app.post("/ideas/comment", (req, res) => {
     const { id, comment } = req.body;
 
@@ -231,10 +197,6 @@ app.post("/ideas/comment", (req, res) => {
     });
 });
 
-
-// =======================================
-// ✅ LIKE / DISLIKE COMMENT
-// =======================================
 app.post("/comments/react", (req, res) => {
     const { commentId, type, email } = req.body;
 
@@ -242,7 +204,6 @@ app.post("/comments/react", (req, res) => {
         SELECT * FROM commentReactions WHERE userEmail=? AND commentId=?
     `, [email, commentId], (err, row) => {
 
-        // ✅ CASE 1: Chưa phản ứng
         if (!row) {
             db.run(`
                 INSERT INTO commentReactions(userEmail, commentId, reaction)
@@ -256,7 +217,6 @@ app.post("/comments/react", (req, res) => {
             return res.json({ status: "added", reaction: type });
         }
 
-        // ✅ CASE 2: Nhấn lại để bỏ
         if (row.reaction === type) {
             db.run(`DELETE FROM commentReactions WHERE id=?`, [row.id]);
             
@@ -267,7 +227,6 @@ app.post("/comments/react", (req, res) => {
             return res.json({ status: "removed", reaction: "none" });
         }
 
-        // ✅ CASE 3: Chuyển từ like → dislike hoặc ngược lại
         const opposite = row.reaction;
 
         db.run(`UPDATE commentReactions SET reaction=? WHERE id=?`,
@@ -285,9 +244,6 @@ app.post("/comments/react", (req, res) => {
 });
 
 
-// =======================================
-// ✅ START SERVER
-// =======================================
 app.listen(3000, () => {
     console.log("✅ BACKEND + SQLITE running at http://localhost:3000");
 });

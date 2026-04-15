@@ -14,10 +14,8 @@
 
     <button class="button" onclick="go('ideas.html')" style="background:#6b7280;">⬅ Back</button>
 
-    <!-- IDEA DETAILS -->
     <div class="card" id="detailBox"></div>
 
-    <!-- COMMENT INPUT -->
     <div class="card">
         <h3>Add Comment</h3>
         <textarea id="commentInput" class="input" placeholder="Your comment..."></textarea>
@@ -39,8 +37,6 @@ if (!email) {
 const urlParams = new URLSearchParams(window.location.search);
 const ideaId = urlParams.get("id");
 
-
-// ✅ Load idea details + comments
 async function loadIdea() {
     try {
         const res = await fetch(API + "/ideas");
@@ -52,7 +48,6 @@ async function loadIdea() {
             return;
         }
 
-        // ✅ Render comments section
         let commentHTML = "";
         idea.comments.forEach(c => {
             commentHTML += `
@@ -74,7 +69,6 @@ async function loadIdea() {
             `;
         });
 
-        // ✅ Render idea
         document.getElementById("detailBox").innerHTML = `
             <h2>${idea.title}</h2>
             <p>${idea.content}</p>
@@ -93,8 +87,6 @@ async function loadIdea() {
     }
 }
 
-
-// ✅ Submit new comment
 function submitComment() {
     let comment = document.getElementById("commentInput").value.trim();
 
@@ -121,8 +113,6 @@ function submitComment() {
     .catch(err => console.error("COMMENT ERROR:", err));
 }
 
-
-// ✅ React to comment (like/dislike)
 function reactComment(commentId, type) {
     fetch(API + "/comments/react", {
         method: "POST",
@@ -144,7 +134,7 @@ function reactComment(commentId, type) {
 
 function go(page){ window.location.href = page; }
 
-loadIdea();   // ✅ Initial load
+loadIdea();   
 </script>
 
 </body>

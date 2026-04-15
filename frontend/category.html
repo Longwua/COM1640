@@ -32,7 +32,6 @@
 <script>
 const API = "http://localhost:3000";
 
-// PAGE GUARD (Admin only)
 const role = localStorage.getItem("role");
 const email = localStorage.getItem("email");
 
@@ -48,8 +47,6 @@ if (role !== "admin") {
 
 function go(p){ window.location.href = p; }
 
-
-// ✅ Load category list
 function loadCategories() {
     fetch(API + "/categories")
         .then(res => res.json())
@@ -69,7 +66,6 @@ function loadCategories() {
         });
 }
 
-// ✅ Add Category
 function addCategory() {
     let name = document.getElementById("newCategory").value.trim();
     if (!name) return alert("Please enter a category name");
@@ -87,7 +83,6 @@ function addCategory() {
     });
 }
 
-// ✅ Delete Category by ID
 function deleteCategory(id) {
     fetch(API + "/categories/delete", {
         method:"POST",

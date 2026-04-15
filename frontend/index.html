@@ -53,11 +53,11 @@ async function loadDropdowns() {
     let categories = await catRes.json();
     let topics = await topicRes.json();
 
-    // ✅ FIX: Category is an array of objects → use name
+    // ✅  Category is an array of objects → use name
     document.getElementById("category").innerHTML =
         categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("");
 
-    // ✅ FIX: Topic is an array of objects → use name
+    // ✅  Topic is an array of objects → use name
     document.getElementById("topic").innerHTML =
         topics.map(t => `<option value="${t.name}">${t.name}</option>`).join("");
 }

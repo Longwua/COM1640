@@ -41,7 +41,7 @@ function login() {
         if (res.error) {
             alert("❌ " + res.error);
         } else {
-            // ✅ LƯU LOGIN SAU KHI ĐĂNG NHẬP
+            // LƯU LOGIN 
             localStorage.setItem("email", res.user.email);
             localStorage.setItem("role",  res.user.role);
 

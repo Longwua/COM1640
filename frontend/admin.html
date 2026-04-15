@@ -8,7 +8,6 @@
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">Admin Panel</div>
 
 <div class="container">
@@ -21,7 +20,6 @@
 
         <br>
 
-        <!-- MENU -->
         <button class="button" onclick="go('category.html')">Manage Categories</button>
         <button class="button" onclick="go('topic.html')">Manage Topics</button>
         <button class="button" onclick="go('statistics.html')">Statistics</button>
@@ -35,7 +33,7 @@
 </div>
 
 <script>
-// ----------------- PAGE GUARD --------------------
+
 const email = localStorage.getItem("email");
 const role  = localStorage.getItem("role");
 
@@ -44,7 +42,6 @@ if (!email) {
     window.location.href = "login.html";
 }
 
-// ✅ CHỈ ADMIN ĐƯỢC VÀO TRANG NÀY
 if (role !== "admin") {
     alert("❌ Access denied: Only admin can access this page!");
     window.location.href = "dashboard.html";

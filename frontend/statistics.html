@@ -17,11 +17,9 @@
     <div class="card">
         <h2>Overview</h2>
 
-        <!-- ✅ Đổi tên như bạn yêu cầu -->
         <p><b>Total Likes (Ideas):</b> <span id="likeIdeas"></span></p>
         <p><b>Total Dislikes (Ideas):</b> <span id="dislikeIdeas"></span></p>
 
-        <!-- ✅ Thêm thống kê Comment -->
         <p><b>Total Likes (Comments):</b> <span id="likeComments"></span></p>
         <p><b>Total Dislikes (Comments):</b> <span id="dislikeComments"></span></p>
 
@@ -55,7 +53,6 @@ function go(p){ window.location.href = p; }
 async function loadStats() {
     const ideas = await fetch(API + "/ideas").then(r => r.json());
 
-    // ====== ✅ Tính tổng Like/Dislike Ideas ======
     let likeIdeas = 0;
     let dislikeIdeas = 0;
     let totalComments = 0;
@@ -71,7 +68,6 @@ async function loadStats() {
     document.getElementById("totalIdeas").innerText = ideas.length;
     document.getElementById("totalComments").innerText = totalComments;
 
-    // ====== ✅ Tính tổng Like/Dislike Comments ======
     let likeComments = 0;
     let dislikeComments = 0;
 
@@ -85,7 +81,6 @@ async function loadStats() {
     document.getElementById("likeComments").innerText = likeComments;
     document.getElementById("dislikeComments").innerText = dislikeComments;
 
-    // ====== ✅ Stats theo Category ======
     let catCount = {};
     ideas.forEach(i => {
         catCount[i.category] = (catCount[i.category] || 0) + 1;
@@ -97,7 +92,6 @@ async function loadStats() {
     }
     document.getElementById("categoryStats").innerHTML = catHtml;
 
-    // ====== ✅ Stats theo Topic ======
     let topicCount = {};
     ideas.forEach(i => {
         topicCount[i.topic] = (topicCount[i.topic] || 0) + 1;

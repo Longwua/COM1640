@@ -15,7 +15,6 @@
 <script>
 const API = "http://localhost:3000";
 
-// ✅ PAGE GUARD
 const email = localStorage.getItem("email");
 if (!email) {
     alert("Please login first!");
@@ -25,7 +24,6 @@ if (!email) {
 function go(p){ window.location.href = p; }
 
 
-// ✅ LOAD IDEAS (CHECK FULLY SAFE)
 async function loadIdeas() {
     try {
         const res = await fetch(API + "/ideas");
@@ -66,14 +64,12 @@ async function loadIdeas() {
     }
 }
 
-
-// ✅ VIEW IDEA
 function view(id){
     window.location.href = "idea.html?id=" + id;
 }
 
 
-// ✅ REACT (LIKE/DISLIKE)
+// REACT (LIKE/DISLIKE)
 function react(id, type) {
     fetch(API + "/ideas/react", {
         method: "POST",
@@ -92,7 +88,7 @@ function react(id, type) {
     .catch(err => console.error("React error", err));
 }
 
-loadIdeas(); // ✅ start
+loadIdeas(); // 
 </script>
 
 </body>

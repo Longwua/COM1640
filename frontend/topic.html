@@ -49,8 +49,6 @@ if (role !== "admin") {
 
 function go(page){ window.location.href = page; }
 
-
-// ✅ Load topics
 function loadTopics() {
     fetch(API + "/topics")
         .then(res => res.json())
@@ -74,8 +72,6 @@ function loadTopics() {
         });
 }
 
-
-// ✅ Add new topic
 function addTopic() {
     let name = document.getElementById("topicName").value;
     let closure = document.getElementById("closure").value;
@@ -99,8 +95,6 @@ function addTopic() {
     });
 }
 
-
-// ✅ Delete topic by ID
 function deleteTopic(id) {
     fetch(API + "/topics/delete", {
         method:"POST",
